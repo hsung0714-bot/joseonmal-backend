@@ -181,3 +181,67 @@ res 200
 { status: "ok", db: "ok", version: "1.0.0" }
 res 503
 DB 연결 실패 시
+
+
+classical_words · 단어 사전
+classical_words
+국립국어원 데이터 최초 1회 수집 후 저장
+타입
+컬럼명
+설명
+속성
+uuid
+id
+고유 식별자
+PK
+varchar
+word
+옛 단어 (예: 금일)
+IDX
+enum
+era
+조선전기·조선후기·고려·삼국
+IDX
+enum
+category
+감정어·관계어·일상어·자연어
+text
+modern_meaning
+현대 뜻 (예: 오늘)
+text
+classical_meaning
+고전적 의미·용법 설명
+text
+example_sentence
+예문
+varchar
+source
+출처 (예: 훈몽자회)
+boolean
+is_active
+false = 비공개 · default true
+timestamp
+created_at
+등록일시
+classical_words
+──── featured as ────▶
+daily_words
+daily_words · 오늘의 단어 스케줄표
+daily_words
+날짜별 단어 예약 · 없으면 fallback 처리
+타입
+컬럼명
+설명
+속성
+uuid
+id
+고유 식별자
+PK
+uuid
+word_id
+classical_words 참조
+FK
+date
+display_date
+노출 날짜 · 날짜당 1개만
+UK

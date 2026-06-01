@@ -1,41 +1,21 @@
-import httpx
-import os
-
-URIMALSAEM_API_KEY = os.getenv("URIMALSAEM_API_KEY", "")
-BASE_URL = "https://opendict.korean.go.kr/api/search"
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.models import ClassicalWord
 
 
-async def get_classical_words(keywords: list[str]) -> dict[str, str]:
-    """키워드 목록을 우리말샘 API에 검색해서 고어 치환 목록 반환"""
+async def get_classical_words(keywords: list[str], db: AsyncSession) -> dict[str, str]:
+    """추출된 키워드를 DB에서 조회해서 현대어-고전어 치환 목록 반환"""
     substitutions = {}
 
-    async with httpx.AsyncClient() as client:
-        for word in keywords:
-            classical = await _search_word(client, word)
-            if classical:
-                substitutions[word] = classical
+    for keyword in keywords:
+        result = await db.execute(
+            select(ClassicalWord)
+            .where(ClassicalWord.modern_meaning.contains(keyword))
+            .where(ClassicalWord.is_active == True)
+            .limit(1)
+        )
+        word = result.scalar_one_or_none()
+        if word:
+            substitutions[keyword] = word.word
 
     return substitutions
-
-
-async def _search_word(client: httpx.AsyncClient, word: str) -> str | None:
-    try:
-        response = await client.get(
-            BASE_URL,
-            params={
-                "key": URIMALSAEM_API_KEY,
-                "q": word,
-                "req_type": "json",
-                "part": "word",
-                "sort": "popular",
-                "num": 1,
-            },
-            timeout=5.0,
-        )
-        data = response.json()
-        items = data.get("channel", {}).get("item", [])
-        if items:
-            return items[0].get("word")
-    except Exception:
-        pass
-    return None
