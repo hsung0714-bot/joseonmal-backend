@@ -1,9 +1,10 @@
 import os
+import re
 import json
 import anthropic
 from anthropic.types import MessageParam
 
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""))
+client = anthropic.AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""))
 
 
 async def convert_to_classical(text: str, substitutions: dict[str, str]) -> dict:
@@ -29,10 +30,13 @@ async def convert_to_classical(text: str, substitutions: dict[str, str]) -> dict
   ]
 }}"""
 
-    message = client.messages.create(
+    message = await client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=1024,
         messages=[MessageParam(role="user", content=prompt)],
     )
 
-    return json.loads(message.content[0].text)
+    raw = message.content[0].text
+    # 마크다운 코드블럭(```json ... ```) 제거
+    cleaned = re.sub(r"```(?:json)?\s*|\s*```", "", raw).strip()
+    return json.loads(cleaned)
