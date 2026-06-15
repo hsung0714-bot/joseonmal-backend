@@ -10,7 +10,7 @@ async def get_classical_words(keywords: list[str], db: AsyncSession) -> dict[str
     for keyword in keywords:
         result = await db.execute(
             select(ClassicalWord)
-            .where(ClassicalWord.modern_meaning.contains(keyword))
+            .where(ClassicalWord.modern_word == keyword)
             .where(ClassicalWord.is_active == True)
             .limit(1)
         )
