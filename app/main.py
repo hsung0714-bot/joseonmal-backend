@@ -7,6 +7,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.limiter import limiter
 from app.api.convert import router as convert_router
+from app.api.dictionary import router as dictionary_router
 from app.db import engine, AsyncSessionLocal
 from app.models import Base
 
@@ -15,6 +16,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(convert_router, prefix="/api")
+app.include_router(dictionary_router, prefix="/api")
 
 
 @app.on_event("startup")
