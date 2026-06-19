@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.convert import ConvertRequest, ConvertResponse, HighlightedWord
+from app.schemas.convert import ConvertRequest, ConvertResponse, HighlightedWord, ConversionHistoryItem
 from app.services.morpheme import extract_keywords
 from app.services.dictionary import get_classical_words
 from app.services.claude_client import convert_to_classical
@@ -32,3 +33,11 @@ async def convert(request: Request, body: ConvertRequest, db: AsyncSession = Dep
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/convert/history", response_model=list[ConversionHistoryItem])
+async def get_history(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(ConversionHistory).order_by(ConversionHistory.created_at.desc()).limit(50)
+    )
+    return result.scalars().all()

@@ -1,3 +1,5 @@
+from datetime import datetime
+from uuid import UUID
 from pydantic import BaseModel, Field
 
 
@@ -14,3 +16,12 @@ class HighlightedWord(BaseModel):
 class ConvertResponse(BaseModel):
     converted_text: str
     highlighted_words: list[HighlightedWord]
+
+
+class ConversionHistoryItem(BaseModel):
+    id: UUID
+    original_text: str
+    converted_text: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
