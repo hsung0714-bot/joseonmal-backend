@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+kiwipiepy
+anthropic
+httpx
+asyncpg
+sqlalchemy
+python-dotenv
+pydantic
+slowapi
+greenlet
