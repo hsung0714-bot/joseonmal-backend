@@ -6,6 +6,7 @@ from app.services.dictionary import get_classical_words
 from app.services.claude_client import convert_to_classical
 from app.db import get_db
 from app.limiter import limiter
+from app.models import ConversionHistory
 
 router = APIRouter()
 
@@ -17,6 +18,13 @@ async def convert(request: Request, body: ConvertRequest, db: AsyncSession = Dep
         keywords = extract_keywords(body.original_text)
         substitutions = await get_classical_words(keywords, db)
         result = await convert_to_classical(body.original_text, substitutions)
+
+        history = ConversionHistory(
+            original_text=body.original_text,
+            converted_text=result["converted_text"],
+        )
+        db.add(history)
+        await db.commit()
 
         return ConvertResponse(
             converted_text=result["converted_text"],
