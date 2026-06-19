@@ -32,3 +32,12 @@ class DailyWord(Base):
     word_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("classical_words.id"))
     display_date: Mapped[date] = mapped_column(Date, unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ConversionHistory(Base):
+    __tablename__ = "conversion_history"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    original_text: Mapped[str] = mapped_column(Text)
+    converted_text: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
